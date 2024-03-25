@@ -6,11 +6,21 @@ RUN apt-get update \
  && apt-get install -y git \
  && rm -rf /var/lib/apt/lists/*
 
-RUN  mkdir -p /catkin_ws/src/ig_lio
+# apt packages
+RUN apt-get update \
+ && apt-get install -y libgoogle-glog-dev \
+ && rm -rf /var/lib/apt/lists/*
 
-COPY . /catkin_ws/src/ig_lio
+# ROS packages
+RUN  mkdir -p /catkin_ws/src
+RUN git clone --recurse-submodules \
+      https://github.com/Livox-SDK/livox_ros_driver \
+      /catkin_ws/src/livox_ros_driver
 
-RUN git clone https://github.com/Livox-SDK/livox_ros_driver /catkin_ws/src/livox_ros_driver
+# code repository
+RUN git clone --recurse-submodules \
+      https://github.com/RobotResearchRepos/zijiechenrobotics_ig_lio \
+      /catkin_ws/src/ig_lio
 
 RUN . /opt/ros/$ROS_DISTRO/setup.sh \
  && apt-get update \
@@ -19,12 +29,6 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh \
      --ignore-src \
  && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update \
- && apt-get install -y libgoogle-glog-dev \
- && rm -rf /var/lib/apt/lists/*
-
 RUN . /opt/ros/$ROS_DISTRO/setup.sh \
  && cd /catkin_ws \
- && catkin_make
- 
- 
+ && catkin_make -j1
